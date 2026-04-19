@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Jornada Trabalhista | Cálculo de Jornada</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0c12;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            max-width: 620px;
+            width: 100%;
+            background: #0f1219;
+            border-radius: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0a0e14 0%, #0f1219 100%);
+            padding: 28px 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e0e0e0, #a0a0ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .time-grid {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .time-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: rgba(255,255,255,0.03);
+            padding: 14px 20px;
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.2s;
+        }
+
+        .time-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            background: rgba(255,255,255,0.05);
+            padding: 6px 18px;
+            border-radius: 40px;
+            min-width: 140px;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        .time-input {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #f0f0f0;
+            background: #1a1e2a;
+            padding: 10px 20px;
+            border-radius: 32px;
+            border: 1.5px solid #2a2f3f;
+            width: 140px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: text;
+        }
+
+        .time-input:focus {
+            outline: none;
+            border-color: #6c63ff;
+            background: #1f2535;
+            box-shadow: 0 0 0 3px rgba(108,99,255,0.2);
+        }
+
+        .jornada-section {
+            padding: 8px 24px;
+        }
+
+        .jornada-label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b92a8;
+            margin-bottom: 12px;
+        }
+
+        .jornada-opcoes {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 60px;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .opcao-jornada {
+            background: #1a1e2a;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: monospace;
+            padding: 8px 28px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #b9c3d4;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .opcao-jornada.active {
+            background: #6c63ff;
+            color: white;
+            box-shadow: 0 4px 14px rgba(108,99,255,0.4);
+        }
+
+        .calc-area {
+            padding: 20px 24px 12px 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-calcular {
+            background: #2ecc71;
+            border: none;
+            flex: 2;
+            padding: 16px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(46,204,113,0.2);
+        }
+
+        .btn-export {
+            background: #3b4252;
+            border: none;
+            flex: 1;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-calcular:active, .btn-export:active {
+            transform: scale(0.97);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #0b0e16, #0f1219);
+            margin: 8px 24px 28px 24px;
+            border-radius: 32px;
+            padding: 28px 20px;
+            text-align: center;
+            border: 1px solid rgba(108,99,255,0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: #8b92b0;
+            letter-spacing: 2px;
+        }
+
+        .horas-extra {
+            font-size: 3.2rem;
+            font-weight: 800;
+            font-family: monospace;
+            color: #facc15;
+            margin-top: 12px;
+            text-shadow: 0 0 10px rgba(250,204,21,0.2);
+        }
+
+        .extra-detail {
+            font-size: 0.8rem;
+            color: #8d99ae;
+            margin-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 12px;
+        }
+
+        @media (max-width: 550px) {
+            .time-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .time-input {
+                width: 100%;
+                font-size: 1.2rem;
+            }
+            .horas-extra {
+                font-size: 2.4rem;
+            }
+            .calc-area {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+<div class="card" id="appCard">
+    <div class="header">
+        <h1>📆 JORNADA TRABALHISTA</h1>
+        <p>cálculo de horas extras · auto save</p>
+    </div>
+
+    <div class="time-grid">
+        <div class="time-row">
+            <span class="time-label">🌅 INÍCIO DA JORNADA</span>
+            <input type="time" class="time-input" id="inicioJornada" value="08:00">
+        </div>
+
+        <div class="time-row">
+            <span class="time-label">🍽️ INÍCIO DO INTERVALO</span>
+            <input type="time" class="time-input" id="inicioIntervalo" value="12:00">
+        </div>
+
+        <div class="time-row">
+            <span class="time-label">🔄 RETORNO DA PAUSA</span>
+            <input type="time" class="time-input" id="retornoPausa" value="13:00">
+        </div>
+
+        <div class="time-row">
+            <span class="time-label">🏁 FIM DO EXPEDIENTE</span>
+            <input type="time" class="time-input" id="fimJornada" value="17:00">
+        </div>
+    </div>
+
+    <div class="jornada-section">
+        <div class="jornada-label">⏱️ SELEcIONE A JORNADA PADRÃO</div>
+        <div class="jornada-opcoes">
+            <button data-jornada="6.0" class="opcao-jornada">06:00</button>
+            <button data-jornada="7.333333333333333" class="opcao-jornada">07:20</button>
+            <button data-jornada="8.333333333333334" class="opcao-jornada active">08:20</button>
+        </div>
+    </div>
+
+    <div class="calc-area">
+        <button class="btn-calcular" id="calcularBtn">📊 CALCULAR HORAS</button>
+        <button class="btn-export" id="exportBtn">📸 EXPORTAR IMAGEM</button>
+    </div>
+
+    <div class="result-box" id="resultBox">
+        <div class="result-label">🏆 TOTAL DE HORAS EXTRAS</div>
+        <div class="horas-extra" id="horasExtraValor">--:--</div>
+        <div class="extra-detail" id="extraDetail">Preencha os horários · cálculo automático</div>
+    </div>
+</div>
+
+<script>
+    const inicioInput = document.getElementById('inicioJornada');
+    const inicioIntervaloInput = document.getElementById('inicioIntervalo');
+    const retornoPausaInput = document.getElementById('retornoPausa');
+    const fimInput = document.getElementById('fimJornada');
+    const horasExtraSpan = document.getElementById('horasExtraValor');
+    const extraDetailSpan = document.getElementById('extraDetail');
+    const botoesJornada = document.querySelectorAll('.opcao-jornada');
+    const calcularBtn = document.getElementById('calcularBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const appCard = document.getElementById('appCard');
+
+    let jornadaPadraoHoras = 8.333333333333334;
+
+    function timeToMinutes(timeStr) {
+        if (!timeStr) return 0;
+        const parts = timeStr.split(':');
+        if (parts.length < 2) return 0;
+        const hours = parseInt(parts[0], 10);
+        const minutes = parseInt(parts[1], 10);
+        if (isNaN(hours) || isNaN(minutes)) return 0;
+        return hours * 60 + minutes;
+    }
+
+    function formatMinutesToTime(minutos) {
+        const sinal = minutos < 0 ? '-' : '';
+        const absMinutos = Math.abs(minutos);
+        const horas = Math.floor(absMinutos / 60);
+        const mins = absMinutos % 60;
+        return `${sinal}${horas.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    }
+
+    function formatDurationPositive(minutos) {
+        const hrs = Math.floor(minutos / 60);
+        const mins = minutos % 60;
+        return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    }
+
+    function calcularHorasExtras() {
+        const inicio = timeToMinutes(inicioInput.value);
+        const inicioPausa = timeToMinutes(inicioIntervalo.value);
+        const retornoPausa = timeToMinutes(retornoPausaInput.value);
+        const fim = timeToMinutes(fimInput.value);
+
+        let inicioTrab = inicio;
+        let inicioIntervaloValido = Math.max(inicioPausa, inicioTrab);
+        let fimIntervaloValido = Math.max(retornoPausa, inicioIntervaloValido);
+        let fimExp = Math.max(fim, fimIntervaloValido);
+
+        if (fimExp <= inicioTrab) {
+            horasExtraSpan.innerText = "00:00";
+            extraDetailSpan.innerHTML = "⚠️ Horário de fim anterior ao início da jornada";
+            salvarDados();
+            return;
+        }
+
+        let tempoAntesIntervalo = 0;
+        if (inicioIntervaloValido > inicioTrab) {
+            tempoAntesIntervalo = inicioIntervaloValido - inicioTrab;
+        }
+
+        let tempoDepoisIntervalo = 0;
+        if (fimExp > fimIntervaloValido) {
+            tempoDepoisIntervalo = fimExp - fimIntervaloValido;
+        }
+
+        const minutosTrabalhados = tempoAntesIntervalo + tempoDepoisIntervalo;
+        const horasTrabalhadas = minutosTrabalhados / 60;
+        const horasExtras = horasTrabalhadas - jornadaPadraoHoras;
+
+        const minutosExtras = Math.round(Math.abs(horasExtras) * 60);
+        const sinal = horasExtras >= 0 ? '+' : '-';
+        const horasExtrasFormatadas = horasExtras === 0 ? "00:00" : `${sinal}${formatMinutesToTime(minutosExtras)}`;
+
+        if (Math.abs(horasExtras) < 0.005) {
+            horasExtraSpan.innerText = "00:00";
+            extraDetailSpan.innerHTML = `✅ Jornada exata · Trabalhado: ${formatDurationPositive(minutosTrabalhados)} | Meta: ${formatDurationPositive(jornadaPadraoHoras * 60)}`;
+        } else if (horasExtras > 0) {
+            horasExtraSpan.innerText = horasExtrasFormatadas;
+            extraDetailSpan.innerHTML = `🏅 Hora extra positiva · Trabalhado: ${formatDurationPositive(minutosTrabalhados)} | Meta: ${formatDurationPositive(jornadaPadraoHoras * 60)}`;
+        } else {
+            horasExtraSpan.innerText = horasExtrasFormatadas;
+            extraDetailSpan.innerHTML = `🔻 Déficit na jornada · Trabalhado: ${formatDurationPositive(minutosTrabalhados)} | Meta: ${formatDurationPositive(jornadaPadraoHoras * 60)}`;
+        }
+        
+        salvarDados();
+    }
+
+    function salvarDados() {
+        const dados = {
+            inicio: inicioInput.value,
+            inicioPausa: inicioIntervaloInput.value,
+            retornoPausa: retornoPausaInput.value,
+            fim: fimInput.value,
+            jornadaSelecionada: jornadaPadraoHoras,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('jornadaAppData', JSON.stringify(dados));
+    }
+
+    function carregarDados() {
+        const saved = localStorage.getItem('jornadaAppData');
+        if (!saved) return;
+        
+        try {
+            const dados = JSON.parse(saved);
+            if (dados.inicio) inicioInput.value = dados.inicio;
+            if (dados.inicioPausa) inicioIntervaloInput.value = dados.inicioPausa;
+            if (dados.retornoPausa) retornoPausaInput.value = dados.retornoPausa;
+            if (dados.fim) fimInput.value = dados.fim;
+            if (dados.jornadaSelecionada) {
+                jornadaPadraoHoras = dados.jornadaSelecionada;
+                botoesJornada.forEach(btn => {
+                    const btnVal = parseFloat(btn.getAttribute('data-jornada'));
+                    if (Math.abs(btnVal - jornadaPadraoHoras) < 0.001) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+        } catch(e) {}
+        
+        calcularHorasExtras();
+    }
+
+    botoesJornada.forEach(botao => {
+        botao.addEventListener('click', () => {
+            botoesJornada.forEach(btn => btn.classList.remove('active'));
+            botao.classList.add('active');
+            jornadaPadraoHoras = parseFloat(botao.getAttribute('data-jornada'));
+            calcularHorasExtras();
+        });
+    });
+
+    function atualizarECalcular() {
+        calcularHorasExtras();
+    }
+
+    [inicioInput, inicioIntervaloInput, retornoPausaInput, fimInput].forEach(input => {
+        input.addEventListener('change', atualizarECalcular);
+        input.addEventListener('input', atualizarECalcular);
+    });
+
+    calcularBtn.addEventListener('click', () => {
+        calcularHorasExtras();
+        const btn = calcularBtn;
+        btn.style.transform = 'scale(0.98)';
+        setTimeout(() => { btn.style.transform = ''; }, 150);
+    });
+
+    exportBtn.addEventListener('click', async () => {
+        const originalOverflow = document.body.style.overflow;
+        const originalPadding = appCard.style.padding;
+        
+        try {
+            exportBtn.disabled = true;
+            exportBtn.style.opacity = '0.7';
+            exportBtn.innerText = '📸 GERANDO...';
+            
+            const canvas = await html2canvas(appCard, {
+                scale: 2.5,
+                backgroundColor: '#0f1219',
+                logging: false,
+                useCORS: false,
+                allowTaint: false
+            });
+            
+            const link = document.createElement('a');
+            const dataUrl = canvas.toDataURL('image/png');
+            const dataAtual = new Date();
+            const timestamp = `${dataAtual.getFullYear()}-${dataAtual.getMonth()+1}-${dataAtual.getDate()}_${dataAtual.getHours()}-${dataAtual.getMinutes()}`;
+            link.download = `jornada_horas_extras_${timestamp}.png`;
+            link.href = dataUrl;
+            link.click();
+            
+        } catch (error) {
+            console.error('erro na captura:', error);
+            alert('Erro ao gerar imagem, tente novamente.');
+        } finally {
+            exportBtn.disabled = false;
+            exportBtn.style.opacity = '1';
+            exportBtn.innerText = '📸 EXPORTAR IMAGEM';
+        }
+    });
+
+    carregarDados();
+    window.addEventListener('beforeunload', () => {
+        salvarDados();
+    });
+</script>
+</body>
+</html> 
